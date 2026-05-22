@@ -8,396 +8,522 @@
   <link rel="apple-touch-icon" href="Vexyron.Logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --bg:       #080808;
-      --glass:    rgba(255,255,255,0.04);
-      --border:   rgba(255,255,255,0.08);
-      --border-h: rgba(255,255,255,0.2);
-      --white:    #ffffff;
-      --muted:    #444;
-      --muted2:   #777;
-      --muted3:   #aaa;
-      --r-sm:     10px;
-      --r-md:     16px;
-      --r-lg:     24px;
+      --r: 16px;
+      --r-lg: 22px;
+      --text:     #1c1528;
+      --text-2:   #5a4f78;
+      --text-3:   #8a7fa8;
+      --border:   rgba(255,255,255,0.5);
+      --card-bg:  rgba(255,255,255,0.2);
+      --card-blur: blur(48px);
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--white); font-family: 'Inter', sans-serif; overflow-x: hidden; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+    html, body {
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      color: var(--text);
+    }
+
+    /* ── BACKGROUND ── */
+    body {
+      background: #c8bcd8;
+    }
 
     #starfield {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 0;
-      pointer-events: none;
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
     }
 
-    .bg-orb { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; }
-    .bg-orb-1 { width:700px; height:700px; background:radial-gradient(circle,rgba(255,255,255,0.07) 0%,transparent 70%); top:-200px; left:-200px; animation:float1 10s ease-in-out infinite; }
-    .bg-orb-2 { width:600px; height:600px; background:radial-gradient(circle,rgba(180,180,255,0.06) 0%,transparent 70%); bottom:0; right:-150px; animation:float2 12s ease-in-out infinite; }
-    .bg-orb-3 { width:400px; height:400px; background:radial-gradient(circle,rgba(255,255,255,0.05) 0%,transparent 70%); top:40%; left:40%; animation:float1 9s ease-in-out 2s infinite; }
-    @keyframes float1 { 0%,100%{transform:translateY(0) translateX(0)} 33%{transform:translateY(-40px) translateX(20px)} 66%{transform:translateY(20px) translateX(-20px)} }
-    @keyframes float2 { 0%,100%{transform:translateY(0) translateX(0)} 33%{transform:translateY(30px) translateX(-30px)} 66%{transform:translateY(-20px) translateX(20px)} }
+    .blobs {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    }
+    .blob {
+      position: absolute; border-radius: 50%;
+      filter: blur(110px);
+    }
+    .blob-1 { width: 650px; height: 650px; top: -180px; left: -180px; background: rgba(185,150,215,0.8); animation: drift 22s ease-in-out infinite; }
+    .blob-2 { width: 580px; height: 580px; top: 5%; right: -160px;   background: rgba(18,25,85,0.75);   animation: drift 28s ease-in-out 4s infinite reverse; }
+    .blob-3 { width: 520px; height: 520px; bottom: -140px; left: -80px; background: rgba(210,185,140,0.75); animation: drift 20s ease-in-out 8s infinite; }
+    .blob-4 { width: 460px; height: 460px; bottom: -100px; right: -100px; background: rgba(12,18,72,0.65); animation: drift 26s ease-in-out 2s infinite reverse; }
+    .blob-5 { width: 320px; height: 320px; top: 42%; left: 32%; background: rgba(170,140,200,0.4); animation: drift 18s ease-in-out 6s infinite; }
 
+    @keyframes drift {
+      0%,100% { transform: translate(0,0); }
+      33%      { transform: translate(35px,-28px); }
+      66%      { transform: translate(-22px,32px); }
+    }
+
+    /* ── CURSOR ── */
     @media(pointer:fine) {
       * { cursor: none !important; user-select: none; -webkit-user-select: none; }
     }
-    #cursor { position:fixed; width:6px; height:6px; background:#fff; border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:width .15s,height .15s,opacity .15s; display:none; }
-    #cursor.hover { width:12px; height:12px; opacity:.6; }
-    #mouse-glow { position:fixed; width:130px; height:130px; border-radius:50%; pointer-events:none; z-index:998; transform:translate(-50%,-50%); background:radial-gradient(circle,rgba(255,255,255,0.22) 0%,rgba(255,255,255,0.08) 35%,transparent 70%); filter:blur(20px); mix-blend-mode:screen; transition:opacity .4s; opacity:0; }
-    @media(pointer:fine) {
-      #cursor { display:block; }
+    #cursor {
+      position: fixed; width: 8px; height: 8px;
+      background: rgba(255,255,255,0.9); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: width .12s, height .12s;
+      display: none;
+    }
+    #cursor.hover { width: 16px; height: 16px; opacity: .5; }
+    #mouse-glow {
+      position: fixed; width: 200px; height: 200px; border-radius: 50%;
+      pointer-events: none; z-index: 1;
+      transform: translate(-50%,-50%);
+      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+      filter: blur(20px); transition: opacity .4s; opacity: 0;
+    }
+    @media(pointer:fine) { #cursor { display: block; } }
+
+    .top-fade {
+      position: fixed; top: 0; left: 0; right: 0; height: 100px;
+      background: linear-gradient(to bottom, rgba(185,160,210,0.6) 0%, transparent 100%);
+      pointer-events: none; z-index: 5;
     }
 
-    .top-fade { position:fixed; top:0; left:0; right:0; height:160px; background:linear-gradient(to bottom,var(--bg) 0%,transparent 100%); pointer-events:none; z-index:50; }
-
+    /* ── NAV ── */
     nav {
-      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-      z-index: 200; width: calc(100% - 48px); max-width: 1100px; height: 56px;
-      display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
-      background: rgba(14,14,14,0.85); backdrop-filter: blur(20px);
-      border: 1px solid var(--border); border-radius: var(--r-lg);
-      animation: slideDown 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
+      position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+      z-index: 100; width: calc(100% - 40px); max-width: 1060px;
+      height: 54px; display: flex; align-items: center;
+      justify-content: space-between; padding: 0 20px;
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(36px); -webkit-backdrop-filter: blur(36px);
+      border: 1px solid rgba(255,255,255,0.45);
+      border-radius: 18px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+      animation: navIn .5s cubic-bezier(0.16,1,0.3,1) forwards;
     }
-    @keyframes slideDown { from{opacity:0;transform:translateX(-50%) translateY(-16px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
-    .logo { font-size:.85rem; font-weight:800; letter-spacing:6px; text-transform:uppercase; color:var(--white); flex-shrink:0; }
-    .nav-top-row { display:contents; }
-    .nav-tabs { display:flex; gap:4px; }
+    @keyframes navIn {
+      from { opacity:0; transform:translateX(-50%) translateY(-10px); }
+      to   { opacity:1; transform:translateX(-50%) translateY(0); }
+    }
+    .nav-top-row { display: contents; }
+    .nav-tabs { display: flex; gap: 2px; }
     .nav-tab {
-      font-size:.75rem; font-weight:600; color:var(--muted2);
-      padding:7px 14px; border-radius:var(--r-sm);
-      border:1px solid transparent; background:transparent;
-      transition:color .2s,background .2s,border-color .2s;
-      font-family:'Inter',sans-serif;
+      font-size: .72rem; font-weight: 600; color: var(--text-2);
+      padding: 6px 14px; border-radius: 10px;
+      border: none; background: transparent;
+      font-family: 'Inter', sans-serif;
+      transition: color .15s, background .15s;
     }
-    .nav-tab:hover { color:var(--white); background:rgba(255,255,255,0.05); }
-    .nav-tab.active { color:var(--white); background:rgba(255,255,255,0.08); border-color:var(--border); }
-    .nav-cta { font-size:.75rem; font-weight:700; color:#000; background:var(--white); padding:8px 18px; border-radius:var(--r-sm); text-decoration:none; transition:transform .2s,box-shadow .2s,background .2s; flex-shrink:0; }
-    .nav-cta:hover { background:#e8e8e8; transform:translateY(-1px); box-shadow:0 8px 24px rgba(255,255,255,.1); }
+    .nav-tab:hover { color: var(--text); background: rgba(255,255,255,0.3); }
+    .nav-tab.active {
+      color: var(--text); background: rgba(255,255,255,0.4);
+    }
 
-    .panel-wrap { position:relative; z-index:1; padding-top:90px; min-height:100vh; }
-    .panel { display:none; animation:panelIn .3s cubic-bezier(0.16,1,0.3,1); }
-    .panel.active { display:block; }
-    @keyframes panelIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+    /* ── LAYOUT ── */
+    .panel-wrap { position: relative; z-index: 10; padding-top: 82px; min-height: 100vh; }
+    .panel { display: none; animation: fadeUp .3s ease; }
+    .panel.active { display: block; }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(10px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
 
-    .hero { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 24px 10px; min-height:calc(60vh - 90px); position:relative; overflow:hidden; }
-    .hero-ghost { position:absolute; font-size:clamp(100px,20vw,260px); font-weight:900; letter-spacing:-6px; color:transparent; -webkit-text-stroke:1px rgba(255,255,255,0.035); pointer-events:none; top:50%; left:50%; transform:translate(-50%,-52%); white-space:nowrap; animation:ghostPulse 6s ease-in-out infinite; }
-    @keyframes ghostPulse { 0%,100%{opacity:1} 50%{opacity:.5} }
-    .hero-badge { display:inline-flex; align-items:center; gap:8px; font-family:'JetBrains Mono',monospace; font-size:.68rem; color:var(--muted3); background:var(--glass); border:1px solid var(--border); padding:7px 16px; border-radius:100px; margin-bottom:36px; position:relative; z-index:1; }
-    .badge-dot { width:6px; height:6px; background:#4ade80; border-radius:50%; box-shadow:0 0 8px #4ade80; animation:pulseDot 2s ease-in-out infinite; flex-shrink:0; }
-    @keyframes pulseDot { 0%,100%{opacity:1;box-shadow:0 0 8px #4ade80} 50%{opacity:.5;box-shadow:0 0 4px #4ade80} }
-    .hero-title { position:relative; z-index:1; font-size:clamp(3rem,9.5vw,8rem); font-weight:900; line-height:1; letter-spacing:-4px; color:var(--white); }
-    .hero-title .dim { color:var(--muted); }
-    .hero-sub { position:relative; z-index:1; margin-top:24px; font-size:1.05rem; color:var(--muted2); max-width:420px; line-height:1.65; }
-    .hero-btns { position:relative; z-index:1; margin-top:44px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+    /* ── HERO ── */
+    .hero {
+      text-align: center; padding: 64px 24px 40px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-family: 'JetBrains Mono', monospace; font-size: .62rem;
+      color: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.4);
+      padding: 6px 16px; border-radius: 100px; margin-bottom: 32px;
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    }
+    .badge-dot {
+      width: 6px; height: 6px; background: #4ade80; border-radius: 50%;
+      box-shadow: 0 0 8px #4ade80; animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-    .loader-section { display:flex; flex-direction:column; align-items:center; gap:12px; padding:0 24px; }
-    .loader-label { font-family:'JetBrains Mono',monospace; font-size:.65rem; letter-spacing:3px; text-transform:uppercase; color:var(--muted2); }
-    .loader-box { display:flex; align-items:center; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:var(--r-md); overflow:hidden; max-width:700px; width:100%; backdrop-filter:blur(10px); transition:border-color .3s; }
-    .loader-box:hover { border-color:var(--border-h); }
-    .loader-code { font-family:'JetBrains Mono',monospace; font-size:.78rem; color:var(--muted3); padding:14px 20px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
-    .loader-copy { display:flex; align-items:center; gap:7px; font-family:'Inter',sans-serif; font-size:.75rem; font-weight:600; color:#000; background:var(--white); border:none; padding:14px 20px; transition:background .2s; white-space:nowrap; flex-shrink:0; }
-    .loader-copy:hover { background:#e0e0e0; }
-    .loader-copy.copied { background:#4ade80; }
+    .hero-title {
+      font-size: clamp(3.2rem, 10vw, 7.5rem); font-weight: 800;
+      line-height: .95; letter-spacing: -3px; color: #fff;
+      margin-bottom: 20px;
+    }
+    .hero-title .sub {
+      display: block; color: rgba(255,255,255,0.75); font-weight: 700;
+      letter-spacing: -2px;
+    }
+    .hero-desc {
+      font-size: .95rem; color: rgba(255,255,255,0.7);
+      max-width: 360px; line-height: 1.65; margin-bottom: 36px;
+    }
+    .hero-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 
-    .marquee-wrap { overflow:hidden; padding:18px 0; background:rgba(17,17,17,0.5); border-top:1px solid var(--border); border-bottom:1px solid var(--border); -webkit-mask:linear-gradient(90deg,transparent 0%,black 12%,black 88%,transparent 100%); mask:linear-gradient(90deg,transparent 0%,black 12%,black 88%,transparent 100%); margin-top:40px; }
-    .marquee-track { display:flex; width:max-content; animation:marquee 30s linear infinite; }
-    .marquee-item { font-family:'JetBrains Mono',monospace; font-size:.68rem; color:var(--muted); letter-spacing:3px; text-transform:uppercase; white-space:nowrap; padding:0 28px; }
-    @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    /* ── LOADER ── */
+    .loader-wrap { padding: 0 24px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .loader-label {
+      font-family: 'JetBrains Mono', monospace; font-size: .58rem;
+      letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.55);
+    }
+    .loader-box {
+      display: flex; align-items: center; max-width: 640px; width: 100%;
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(36px); -webkit-backdrop-filter: blur(36px);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: var(--r); overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transition: box-shadow .2s;
+    }
+    .loader-box:hover { box-shadow: 0 6px 28px rgba(0,0,0,0.12); }
+    .loader-code {
+      font-family: 'JetBrains Mono', monospace; font-size: .72rem;
+      color: rgba(255,255,255,0.8); padding: 14px 18px; flex: 1;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .loader-copy {
+      display: flex; align-items: center; gap: 6px;
+      font-family: 'Inter', sans-serif; font-size: .72rem; font-weight: 600;
+      color: #fff; background: rgba(0,0,0,0.35);
+      border: none; padding: 14px 18px;
+      transition: background .2s; white-space: nowrap; flex-shrink: 0;
+    }
+    .loader-copy:hover { background: rgba(0,0,0,0.5); }
+    .loader-copy.copied { background: rgba(74,222,128,0.4); }
 
-    .btn { display:inline-flex; align-items:center; gap:8px; font-size:.85rem; font-weight:700; padding:14px 28px; border-radius:var(--r-md); text-decoration:none; border:none; font-family:'Inter',sans-serif; transition:transform .2s,box-shadow .2s,background .2s; }
-    .btn:active { transform:scale(0.97) !important; }
-    .btn-white { background:var(--white); color:#000; }
-    .btn-white:hover { background:#e8e8e8; transform:translateY(-2px); box-shadow:0 12px 32px rgba(255,255,255,.12); }
-    .btn-glass { background:var(--glass); color:var(--muted3); border:1px solid var(--border); backdrop-filter:blur(10px); }
-    .btn-glass:hover { border-color:var(--border-h); color:var(--white); transform:translateY(-2px); background:rgba(255,255,255,.07); }
+    /* ── MARQUEE ── */
+    .marquee-wrap {
+      overflow: hidden; padding: 14px 0; margin-top: 48px;
+      background: rgba(255,255,255,0.08);
+      border-top: 1px solid rgba(255,255,255,0.18);
+      border-bottom: 1px solid rgba(255,255,255,0.18);
+      -webkit-mask: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+      mask: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+    }
+    .marquee-track { display: flex; width: max-content; animation: scroll 30s linear infinite; }
+    .marquee-item {
+      font-family: 'JetBrains Mono', monospace; font-size: .6rem;
+      color: rgba(255,255,255,0.45); letter-spacing: 3px;
+      text-transform: uppercase; padding: 0 24px;
+    }
+    @keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
-    .section { padding:60px 40px 80px; max-width:1100px; margin:0 auto; }
-    .section-label { font-family:'JetBrains Mono',monospace; font-size:.65rem; color:var(--muted2); letter-spacing:3px; text-transform:uppercase; margin-bottom:14px; }
-    .section-title { font-size:clamp(2rem,4vw,3rem); font-weight:800; letter-spacing:-1.5px; color:var(--white); line-height:1.1; margin-bottom:14px; }
-    .section-title .dim { color:var(--muted); }
-    .section-desc { font-size:.92rem; color:var(--muted2); max-width:460px; line-height:1.7; margin-bottom:48px; }
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: .82rem; font-weight: 600; padding: 12px 24px;
+      border-radius: var(--r); text-decoration: none; border: none;
+      font-family: 'Inter', sans-serif;
+      transition: transform .15s, box-shadow .15s, opacity .15s;
+    }
+    .btn:active { transform: scale(0.97) !important; }
+    .btn-primary {
+      background: rgba(255,255,255,0.95); color: #1c1528;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.16); }
+    .btn-ghost {
+      background: rgba(255,255,255,0.18); color: rgba(255,255,255,0.9);
+      border: 1px solid rgba(255,255,255,0.38);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.26); transform: translateY(-2px); }
 
-    .feature-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-    .feature-card { background:var(--glass); border:1px solid var(--border); border-radius:20px; padding:20px 18px; backdrop-filter:blur(10px); transition:background .3s,border-color .3s,transform .35s,box-shadow .35s; position:relative; overflow:hidden; }
-    .feature-card:hover { background:rgba(255,255,255,.07); border-color:var(--border-h); transform:translateY(-4px); box-shadow:0 16px 40px rgba(0,0,0,.4); }
-    .feature-icon { width:32px; height:32px; border:1px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; background:var(--glass); transition:border-color .3s,transform .3s; }
-    .feature-card:hover .feature-icon { border-color:var(--border-h); transform:scale(1.08); }
-    .feature-name { font-size:.85rem; font-weight:700; color:var(--white); margin-bottom:6px; }
-    .feature-desc { font-size:.75rem; color:var(--muted2); line-height:1.6; }
+    /* ── SECTION ── */
+    .section { padding: 52px 32px 72px; max-width: 1060px; margin: 0 auto; }
+    .section-eyebrow {
+      font-family: 'JetBrains Mono', monospace; font-size: .58rem;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: rgba(255,255,255,0.5); margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(1.9rem, 4vw, 2.8rem); font-weight: 800;
+      letter-spacing: -1.5px; color: #fff; margin-bottom: 10px;
+      line-height: 1.05;
+    }
+    .section-title span { color: rgba(255,255,255,0.55); }
+    .section-desc {
+      font-size: .88rem; color: rgba(255,255,255,0.6);
+      max-width: 420px; line-height: 1.7; margin-bottom: 40px;
+    }
 
-    .updates-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
-    .update-card { background:var(--glass); border:1px solid var(--border); border-radius:var(--r-lg); padding:28px; backdrop-filter:blur(10px); transition:background .3s,border-color .3s,transform .3s; position:relative; overflow:hidden; }
-    .update-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent); }
-    .update-card:hover { background:rgba(255,255,255,.06); border-color:var(--border-h); transform:translateY(-4px); }
-    .update-version { font-family:'JetBrains Mono',monospace; font-size:1rem; font-weight:700; color:var(--white); margin-bottom:16px; }
-    .update-list { list-style:none; display:flex; flex-direction:column; gap:9px; }
-    .update-list li { font-size:.82rem; color:var(--muted2); display:flex; align-items:center; gap:10px; }
-    .update-list li::before { content:''; width:4px; height:4px; background:var(--muted); border-radius:50%; flex-shrink:0; }
+    /* ── GLASS CARD base ── */
+    .g-card {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(48px); -webkit-backdrop-filter: blur(48px);
+      border: 1px solid rgba(255,255,255,0.45);
+      border-radius: var(--r-lg);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      transition: background .2s, box-shadow .2s, transform .2s;
+    }
+    .g-card:hover {
+      background: rgba(255,255,255,0.26);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+      transform: translateY(-3px);
+    }
 
-    .credits-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
-    .credit-card { background:var(--glass); border:1px solid var(--border); border-radius:var(--r-lg); padding:28px; display:flex; align-items:flex-start; gap:18px; backdrop-filter:blur(10px); transition:background .3s,border-color .3s,transform .3s; text-decoration:none; color:inherit; }
-    .credit-card:hover { background:rgba(255,255,255,.06); border-color:var(--border-h); transform:translateY(-4px); }
-    .credit-avatar { width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.07); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:800; color:var(--white); flex-shrink:0; }
-    .credit-name { font-size:.95rem; font-weight:700; color:var(--white); margin-bottom:4px; }
-    .credit-role { font-size:.75rem; color:var(--muted2); margin-bottom:12px; }
-    .credit-tags { display:flex; flex-wrap:wrap; gap:6px; }
-    .credit-tag { font-family:'JetBrains Mono',monospace; font-size:.6rem; letter-spacing:1px; text-transform:uppercase; padding:3px 10px; border-radius:100px; background:rgba(255,255,255,.05); color:var(--muted2); border:1px solid var(--border); }
+    /* ── FEATURE GRID ── */
+    .feature-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .feature-card {
+      padding: 24px 20px;
+    }
+    .feature-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px; color: rgba(255,255,255,0.8);
+      transition: background .2s;
+    }
+    .feature-card:hover .feature-icon { background: rgba(255,255,255,0.28); }
+    .feature-name { font-size: .84rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .feature-desc { font-size: .74rem; color: rgba(255,255,255,0.6); line-height: 1.6; }
 
-    .sounds-search-wrap { display:flex; align-items:center; gap:10px; margin-bottom:32px; }
+    /* ── UPDATE GRID ── */
+    .updates-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 10px; }
+    .update-card { padding: 26px; }
+    .update-version {
+      font-family: 'JetBrains Mono', monospace; font-size: .92rem;
+      font-weight: 700; color: #fff; margin-bottom: 14px;
+    }
+    .update-version .new-badge {
+      display: inline; font-size: .5rem; font-family: 'Inter', sans-serif;
+      background: rgba(255,255,255,0.9); color: #1c1528;
+      padding: 2px 8px; border-radius: 100px; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; vertical-align: middle;
+      margin-left: 8px;
+    }
+    .update-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .update-list li {
+      font-size: .8rem; color: rgba(255,255,255,0.65);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .update-list li::before {
+      content: ''; width: 3px; height: 3px;
+      background: rgba(255,255,255,0.4); border-radius: 50%; flex-shrink: 0;
+    }
+
+    /* ── CREDITS ── */
+    .credits-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap: 10px; }
+    .credit-card {
+      padding: 24px; display: flex; align-items: flex-start; gap: 14px;
+      text-decoration: none; color: inherit;
+    }
+    .credit-avatar {
+      width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem; font-weight: 700; color: #fff;
+    }
+    .credit-name { font-size: .88rem; font-weight: 700; color: #fff; margin-bottom: 3px; }
+    .credit-role { font-size: .72rem; color: rgba(255,255,255,0.6); margin-bottom: 10px; }
+    .credit-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .credit-tag {
+      font-family: 'JetBrains Mono', monospace; font-size: .56rem;
+      padding: 3px 9px; border-radius: 100px;
+      background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.75);
+      border: 1px solid rgba(255,255,255,0.28); letter-spacing: 1px; text-transform: uppercase;
+    }
+
+    /* ── SCRIPTS ── */
+    .scripts-notice {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.14);
+      backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+      border: 1px solid rgba(255,255,255,0.32);
+      border-radius: var(--r); padding: 12px 16px; margin-bottom: 24px;
+      font-size: .76rem; color: rgba(255,255,255,0.7); line-height: 1.5;
+    }
+    .scripts-notice svg { flex-shrink: 0; opacity: .6; color: rgba(255,255,255,0.8); }
+    .scripts-notice strong { color: #fff; font-weight: 600; }
+
+    .search-wrap { margin-bottom: 24px; }
     .sounds-search {
-      flex:1; background:var(--glass); border:1px solid var(--border);
-      border-radius:var(--r-md); padding:12px 18px;
-      font-family:'JetBrains Mono',monospace; font-size:.8rem; color:var(--white);
-      outline:none; transition:border-color .25s;
+      width: 100%; padding: 11px 16px;
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+      border: 1px solid rgba(255,255,255,0.38);
+      border-radius: var(--r);
+      font-family: 'JetBrains Mono', monospace; font-size: .76rem;
+      color: #fff; outline: none;
+      transition: border-color .15s, box-shadow .15s;
     }
-    .sounds-search::placeholder { color:var(--muted2); }
-    .sounds-search:focus { border-color:var(--border-h); }
-
-    .sounds-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
-
-    .sound-card {
-      background:var(--glass); border:1px solid var(--border); border-radius:var(--r-lg);
-      padding:22px 20px; backdrop-filter:blur(10px);
-      transition:background .3s,border-color .3s,transform .3s,box-shadow .3s;
-      position:relative; overflow:hidden;
+    .sounds-search::placeholder { color: rgba(255,255,255,0.4); }
+    .sounds-search:focus {
+      border-color: rgba(255,255,255,0.6);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.08);
     }
-    .sound-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent); }
-    .sound-card:hover { background:rgba(255,255,255,.06); border-color:var(--border-h); transform:translateY(-3px); box-shadow:0 12px 32px rgba(0,0,0,.4); }
-    .sound-card.playing { border-color:rgba(255,255,255,0.3); background:rgba(255,255,255,.07); }
 
-    .sound-card-top { display:flex; align-items:flex-start; gap:14px; margin-bottom:10px; }
+    .sounds-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(290px,1fr)); gap: 10px; }
+    .sound-card { padding: 20px; display: flex; flex-direction: column; }
+    .sound-card-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
     .sound-thumb {
-      width:48px; height:48px; border-radius:12px; flex-shrink:0;
-      background:rgba(255,255,255,.06); border:1px solid var(--border);
-      display:flex; align-items:center; justify-content:center;
-      position:relative; overflow:hidden; transition:border-color .3s;
+      width: 46px; height: 46px; border-radius: 11px; flex-shrink: 0;
+      background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.6); position: relative; overflow: hidden;
     }
-    .sound-card.playing .sound-thumb { border-color:rgba(255,255,255,.25); }
-    .sound-thumb-icon { font-size:1.2rem; }
+    .sound-info { flex: 1; min-width: 0; }
+    .sound-name { font-size: .86rem; font-weight: 700; color: #fff; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sound-desc { font-size: .72rem; color: rgba(255,255,255,0.6); line-height: 1.5; margin-bottom: 4px; }
+    .sound-meta { font-family: 'JetBrains Mono', monospace; font-size: .56rem; color: rgba(255,255,255,0.45); letter-spacing: 1px; }
+    .sounds-empty { text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.45); font-size: .82rem; }
+    .sounds-empty svg { opacity: .25; margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto; }
 
-    .eq-bars { display:flex; align-items:flex-end; gap:2px; height:18px; position:absolute; opacity:0; transition:opacity .3s; }
-    .sound-card.playing .eq-bars { opacity:1; }
-    .sound-card.playing .sound-thumb-icon { opacity:0; }
-    .eq-bar { width:3px; background:#fff; border-radius:2px; animation:eqBounce 0.6s ease-in-out infinite alternate; }
-    .eq-bar:nth-child(1) { height:6px;  animation-delay:0s; }
-    .eq-bar:nth-child(2) { height:14px; animation-delay:0.1s; }
-    .eq-bar:nth-child(3) { height:10px; animation-delay:0.2s; }
-    .eq-bar:nth-child(4) { height:16px; animation-delay:0.15s; }
-    .eq-bar:nth-child(5) { height:8px;  animation-delay:0.05s; }
-    @keyframes eqBounce { from{transform:scaleY(0.4)} to{transform:scaleY(1)} }
-
-    .sound-info { flex:1; min-width:0; }
-    .sound-name { font-size:.9rem; font-weight:700; color:var(--white); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .sound-desc { font-size:.75rem; color:var(--muted2); line-height:1.5; margin-bottom:5px; }
-    .sound-meta { font-family:'JetBrains Mono',monospace; font-size:.6rem; color:var(--muted); letter-spacing:1px; }
-
-    .sound-progress-wrap { margin-bottom:14px; }
-    .sound-waveform {
-      height:28px; background:rgba(255,255,255,.03); border:1px solid var(--border);
-      border-radius:8px; overflow:hidden; position:relative; cursor:pointer;
+    /* ── OWNER INLINE BTN ── */
+    #owner-add-btn-inline {
+      display: none; align-items: center; justify-content: center;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(255,255,255,0.9); border: none;
+      color: #1c1528; font-size: 1.2rem; font-weight: 300;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12);
     }
-    .sound-waveform-bars { display:flex; align-items:center; gap:1.5px; padding:4px 6px; height:100%; }
-    .wv-bar { flex:1; border-radius:2px; background:rgba(255,255,255,.12); transition:background .2s; }
-    .sound-waveform-progress { position:absolute; top:0; left:0; height:100%; background:linear-gradient(90deg,rgba(255,255,255,.18),rgba(255,255,255,.06)); width:0%; transition:width .1s linear; pointer-events:none; }
-    .sound-card.playing .wv-bar { background:rgba(255,255,255,.25); }
-
-    .sound-time { display:flex; justify-content:space-between; margin-top:6px; }
-    .sound-time span { font-family:'JetBrains Mono',monospace; font-size:.6rem; color:var(--muted); }
-
-    .sound-controls { display:flex; align-items:center; gap:8px; }
-    .sound-play-btn {
-      display:flex; align-items:center; justify-content:center;
-      width:34px; height:34px; border-radius:50%;
-      background:var(--white); border:none; flex-shrink:0;
-      transition:transform .2s,background .2s; color:#000;
+    #owner-add-btn-inline:hover { transform: rotate(90deg) scale(1.1); }
+    #owner-login-trigger { width: 18px; height: 18px; display: inline-block; opacity: 0; cursor: default; }
+    #owner-logout {
+      display: none; font-size: .65rem; color: rgba(255,255,255,0.5);
+      text-decoration: underline; text-underline-offset: 3px; margin-left: 10px;
     }
-    .sound-play-btn:hover { transform:scale(1.08); background:#e0e0e0; }
+    #owner-logout:hover { color: #fff; }
+    #owner-logout.visible { display: inline; }
 
-    .sound-vol-wrap { display:flex; align-items:center; gap:6px; flex:1; }
-    .sound-vol-icon { color:var(--muted2); flex-shrink:0; }
-    .sound-vol {
-      flex:1; -webkit-appearance:none; height:3px; border-radius:2px;
-      background:rgba(255,255,255,.12); outline:none;
-    }
-    .sound-vol::-webkit-slider-thumb { -webkit-appearance:none; width:12px; height:12px; border-radius:50%; background:#fff; cursor:pointer; }
-
-    .sound-vm-btn {
-      display:flex; align-items:center; justify-content:center;
-      width:34px; height:34px; border-radius:50%;
-      background:rgba(255,255,255,.06); border:1px solid var(--border);
-      text-decoration:none; flex-shrink:0;
-      transition:background .2s,border-color .2s,transform .2s;
-    }
-    .sound-vm-btn:hover { border-color:rgba(255,255,255,.3); background:rgba(255,255,255,.1); transform:scale(1.08); }
-
-    #owner-add-btn {
-      position:fixed; bottom:36px; right:36px; z-index:500;
-      width:52px; height:52px; border-radius:50%;
-      background:var(--white); border:none; color:#000;
-      display:none;
-      align-items:center; justify-content:center;
-      box-shadow:0 8px 32px rgba(255,255,255,.15);
-      transition:transform .2s,box-shadow .2s;
-      font-size:1.5rem; font-weight:300; line-height:1;
-    }
-    #owner-add-btn:hover { transform:scale(1.1) rotate(90deg); box-shadow:0 12px 40px rgba(255,255,255,.2); }
-    #owner-add-btn.visible { display:flex; }
-
+    /* ── MODALS ── */
     .modal-overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(8px);
-      z-index:1000; display:flex; align-items:center; justify-content:center;
-      opacity:0; pointer-events:none; transition:opacity .25s;
+      position: fixed; inset: 0;
+      background: rgba(20,15,45,0.35);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      z-index: 1000; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .2s;
     }
-    .modal-overlay.open { opacity:1; pointer-events:all; }
-    .modal-box {
-      background:#111; border:1px solid var(--border); border-radius:var(--r-lg);
-      padding:36px 32px; width:100%; max-width:400px; margin:16px;
-      animation:modalIn .3s cubic-bezier(0.16,1,0.3,1);
-      position:relative;
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-box, .upload-modal-box {
+      background: rgba(255,255,255,0.22);
+      backdrop-filter: blur(56px); -webkit-backdrop-filter: blur(56px);
+      border: 1px solid rgba(255,255,255,0.45);
+      border-radius: var(--r-lg); padding: 32px 28px; margin: 16px;
+      animation: modalIn .25s ease;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
     }
-    @keyframes modalIn { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
-    .modal-title { font-size:1.1rem; font-weight:800; color:var(--white); margin-bottom:6px; letter-spacing:-.5px; }
-    .modal-sub { font-size:.78rem; color:var(--muted2); margin-bottom:28px; }
-    .modal-field { width:100%; background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:var(--r-sm); padding:12px 16px; color:var(--white); font-size:.85rem; font-family:'Inter',sans-serif; outline:none; margin-bottom:12px; transition:border-color .2s; }
-    .modal-field:focus { border-color:var(--border-h); }
-    .modal-field::placeholder { color:var(--muted2); }
-    .modal-btn { width:100%; padding:13px; background:var(--white); color:#000; border:none; border-radius:var(--r-sm); font-weight:700; font-size:.85rem; font-family:'Inter',sans-serif; transition:background .2s,transform .15s; margin-bottom:10px; }
-    .modal-btn:hover { background:#e8e8e8; transform:translateY(-1px); }
-    .modal-cancel { width:100%; padding:10px; background:transparent; color:var(--muted2); border:1px solid var(--border); border-radius:var(--r-sm); font-size:.8rem; font-family:'Inter',sans-serif; transition:color .2s,border-color .2s; }
-    .modal-cancel:hover { color:var(--white); border-color:var(--border-h); }
-    .modal-error { font-size:.75rem; color:#f87171; margin-bottom:10px; display:none; }
+    .modal-box { max-width: 380px; width: 100%; }
+    .upload-modal-box { max-width: 460px; width: 100%; }
+    @keyframes modalIn { from{transform:translateY(14px);opacity:0} to{transform:translateY(0);opacity:1} }
 
-    .upload-modal-box {
-      background:#111; border:1px solid var(--border); border-radius:var(--r-lg);
-      padding:36px 32px; width:100%; max-width:480px; margin:16px;
-      animation:modalIn .3s cubic-bezier(0.16,1,0.3,1);
+    .modal-title { font-size: 1.05rem; font-weight: 800; color: #fff; margin-bottom: 5px; }
+    .modal-sub { font-size: .74rem; color: rgba(255,255,255,0.6); margin-bottom: 24px; }
+    .modal-label {
+      display: block; font-size: .6rem; font-weight: 600;
+      font-family: 'JetBrains Mono', monospace; letter-spacing: 2px;
+      text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 5px;
     }
-    .modal-label { font-size:.72rem; font-weight:600; color:var(--muted3); margin-bottom:6px; display:block; font-family:'JetBrains Mono',monospace; letter-spacing:1px; text-transform:uppercase; }
-    .modal-row { margin-bottom:16px; }
-    .modal-owner-badge { display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:.6rem; letter-spacing:1.5px; text-transform:uppercase; color:#f59e0b; background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2); padding:4px 12px; border-radius:100px; margin-bottom:20px; }
-
-    .sounds-empty { text-align:center; padding:60px 20px; color:var(--muted2); font-size:.85rem; }
-    .sounds-empty svg { opacity:.25; margin-bottom:14px; display:block; margin-left:auto; margin-right:auto; }
-
-    .voicemod-notice {
-      display:flex; align-items:center; gap:12px;
-      background:rgba(255,255,255,.03); border:1px solid var(--border);
-      border-radius:var(--r-md); padding:14px 20px; margin-bottom:32px;
-      font-size:.78rem; color:var(--muted2); line-height:1.5;
+    .modal-row { margin-bottom: 14px; }
+    .modal-field {
+      width: 100%; background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.32); border-radius: 10px;
+      padding: 10px 14px; color: #fff; font-size: .82rem;
+      font-family: 'Inter', sans-serif; outline: none;
+      margin-bottom: 10px; transition: border-color .15s, box-shadow .15s;
     }
-    .voicemod-notice a { color:var(--muted3); text-decoration:underline; text-underline-offset:3px; }
-    .voicemod-notice a:hover { color:var(--white); }
-    .voicemod-notice-icon { flex-shrink:0; opacity:.5; }
+    .modal-field:focus { border-color: rgba(255,255,255,0.6); box-shadow: 0 0 0 3px rgba(255,255,255,0.08); }
+    .modal-field::placeholder { color: rgba(255,255,255,0.35); }
+    .modal-btn {
+      width: 100%; padding: 11px;
+      background: rgba(255,255,255,0.92); color: #1c1528;
+      border: none; border-radius: 10px;
+      font-weight: 700; font-size: .82rem; font-family: 'Inter', sans-serif;
+      transition: opacity .15s, transform .15s; margin-bottom: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    }
+    .modal-btn:hover { opacity: .9; transform: translateY(-1px); }
+    .modal-cancel {
+      width: 100%; padding: 9px; background: transparent;
+      color: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 10px; font-size: .78rem; font-family: 'Inter', sans-serif;
+      transition: color .15s, border-color .15s;
+    }
+    .modal-cancel:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
+    .modal-error { font-size: .72rem; color: #fca5a5; margin-bottom: 8px; display: none; }
+    .modal-owner-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: 'JetBrains Mono', monospace; font-size: .55rem;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+      padding: 3px 10px; border-radius: 100px; margin-bottom: 18px;
+    }
 
-    #owner-logout { display:none; font-size:.7rem; color:var(--muted); text-decoration:underline; text-underline-offset:3px; margin-left:12px; }
-    #owner-logout:hover { color:var(--white); }
-    #owner-logout.visible { display:inline; }
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 10;
+      border-top: 1px solid rgba(255,255,255,0.18); padding: 24px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    }
+    .footer-copy { font-size: .68rem; color: rgba(255,255,255,0.45); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: .68rem; color: rgba(255,255,255,0.45); text-decoration: none; transition: color .15s; }
+    .footer-links a:hover { color: rgba(255,255,255,0.85); }
 
-    footer { position:relative; z-index:1; border-top:1px solid var(--border); padding:32px 40px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
-    .footer-logo { font-size:.8rem; font-weight:800; letter-spacing:5px; text-transform:uppercase; color:var(--white); }
-    .footer-copy { font-size:.72rem; color:var(--muted); }
-    .footer-links { display:flex; gap:24px; }
-    .footer-links a { font-size:.72rem; color:var(--muted); text-decoration:none; transition:color .2s; }
-    .footer-links a:hover { color:var(--white); }
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: rgba(255,255,255,0.92); color: #1c1528;
+      font-size: .72rem; font-weight: 700; padding: 10px 20px;
+      border-radius: var(--r); opacity: 0;
+      transition: opacity .2s, transform .3s cubic-bezier(0.16,1,0.3,1);
+      pointer-events: none; z-index: 9999;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    #toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(12px); background:var(--white); color:#000; font-size:.75rem; font-weight:700; padding:12px 22px; border-radius:var(--r-md); opacity:0; transition:opacity .25s,transform .35s cubic-bezier(0.16,1,0.3,1); pointer-events:none; z-index:9999; }
-    #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
+    /* ── RESPONSIVE ── */
     @media(max-width:768px) {
       nav {
-        top: 10px; width: calc(100% - 20px); height: auto;
+        top: 8px; width: calc(100% - 16px); height: auto;
         flex-direction: column; align-items: stretch;
-        padding: 12px 14px; gap: 10px; border-radius: var(--r-md);
-        -webkit-backdrop-filter: blur(20px);
-        backdrop-filter: blur(20px);
+        padding: 10px 12px; gap: 8px; border-radius: 14px;
       }
-      .nav-top-row { display: flex !important; align-items: center; justify-content: space-between; height: 100%; }
-      .nav-tabs { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; width: 100%; }
-      .nav-tab { font-size: .55rem; padding: 6px 2px; text-align: center; border-radius: 8px; }
-      .nav-cta { font-size: .7rem; padding: 7px 14px; }
-      .panel-wrap { padding-top: 120px; }
-      .top-fade { height: 130px; }
-
-      .hero-ghost {
-        -webkit-text-stroke: 1px rgba(255,255,255,0.06);
-        text-stroke: 1px rgba(255,255,255,0.06);
-        display: block;
-        font-size: clamp(80px,22vw,160px);
-      }
-      .hero { padding: 24px 20px 16px; min-height: auto; }
-      .hero-title { font-size: clamp(2.8rem, 14vw, 5rem); letter-spacing: -2px; }
-      .hero-sub { font-size: .9rem; margin-top: 16px; }
-      .hero-badge { font-size: .62rem; padding: 6px 14px; margin-bottom: 24px; }
-      .hero-btns { margin-top: 28px; gap: 10px; }
-      .btn { padding: 12px 22px; font-size: .8rem; }
-
-      .loader-section { padding: 0 16px; }
-      .loader-code { font-size: .68rem; padding: 12px 14px; }
-      .loader-copy { padding: 12px 14px; font-size: .7rem; }
-
-      .marquee-item { font-size: .6rem; padding: 0 18px; }
-      .marquee-wrap { margin-top: 28px; }
-
-      .section { padding: 32px 16px 48px; }
-      .section-title { letter-spacing: -1px; margin-bottom: 10px; }
-      .section-desc { font-size: .85rem; margin-bottom: 32px; }
-
-      .feature-card, .update-card, .credit-card, .sound-card, .loader-box {
-        -webkit-backdrop-filter: blur(10px);
-        backdrop-filter: blur(10px);
-      }
-      .feature-grid { grid-template-columns: 1fr; gap: 8px; }
-      .feature-card { padding: 18px 16px; border-radius: 16px; }
-      .updates-grid { grid-template-columns: 1fr; }
-      .credits-grid { grid-template-columns: 1fr; }
-      .credit-card { padding: 20px; gap: 14px; }
-      .sounds-grid { grid-template-columns: 1fr; }
-
-      nav { background: rgba(10,10,10,0.95); }
-
+      .nav-top-row { display: flex !important; align-items: center; justify-content: space-between; }
+      .nav-tabs { display: grid; grid-template-columns: repeat(6,1fr); gap: 3px; width: 100%; }
+      .nav-tab { font-size: .52rem; padding: 5px 2px; text-align: center; border-radius: 7px; }
+      .panel-wrap { padding-top: 110px; }
+      .hero { padding: 40px 20px 28px; }
+      .hero-title { font-size: clamp(2.8rem,14vw,4.5rem); letter-spacing: -2px; }
+      .hero-btns { gap: 8px; }
+      .btn { padding: 11px 20px; font-size: .78rem; }
+      .section { padding: 28px 16px 48px; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .updates-grid, .credits-grid, .sounds-grid { grid-template-columns: 1fr; }
+      footer { padding: 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
       #mouse-glow { display: none; }
-
-      footer { padding: 20px 16px; flex-direction: column; align-items: flex-start; gap: 10px; }
-      .footer-copy { font-size: .65rem; }
-      #toast { bottom: 24px; font-size: .7rem; width: calc(100% - 48px); text-align: center; }
-
-      .modal-box, .upload-modal-box {
-        padding: 28px 20px;
-        margin: 12px;
-        max-height: 90vh;
-        overflow-y: auto;
-      }
+      .modal-box, .upload-modal-box { padding: 24px 18px; max-height: 90vh; overflow-y: auto; }
     }
-
     @media(max-width:400px) {
-      .nav-tab { font-size: .5rem; padding: 5px 1px; }
+      .nav-tab { font-size: .48rem; }
       .hero-title { font-size: 2.6rem; }
     }
-
-    nav, .feature-card, .update-card, .credit-card, .sound-card,
-    .loader-box, .modal-box, .upload-modal-box, .hero-badge, .voicemod-notice {
-      -webkit-backdrop-filter: blur(10px);
-    }
-    nav { -webkit-backdrop-filter: blur(20px); }
   </style>
 </head>
 <body>
 
   <canvas id="starfield"></canvas>
-
-  <div class="bg-orb bg-orb-1"></div>
-  <div class="bg-orb bg-orb-2"></div>
-  <div class="bg-orb bg-orb-3"></div>
+  <div class="blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+    <div class="blob blob-5"></div>
+  </div>
   <div id="cursor"></div>
   <div id="mouse-glow"></div>
   <div class="top-fade"></div>
 
   <nav>
     <div class="nav-top-row">
-      <div class="logo" style="display:flex;align-items:center;justify-content:flex-start;height:100%">
-        <img src="Vexyron.Logo.png" alt="Vexyron" style="height:32px;width:auto;display:block;object-fit:contain;vertical-align:middle;" />
+      <div style="display:flex;align-items:center;">
+        <img src="Vexyron.Logo.png" alt="Vexyron" style="height:28px;width:auto;filter:brightness(0) invert(1);opacity:.9;" onerror="this.style.display='none'"/>
       </div>
     </div>
     <div class="nav-tabs">
@@ -415,24 +541,27 @@
     <!-- HOME -->
     <div class="panel active" id="panel-home">
       <div class="hero">
-        <div class="hero-ghost">Vexyron</div>
         <div class="hero-badge">
           <div class="badge-dot"></div>
           v2.0 &nbsp;—&nbsp; Now Live
         </div>
-        <h1 class="hero-title">Vexyron<br/><span class="dim">Best Script Hub.</span></h1>
-        <p class="hero-sub">Clean. Fast. Undetected.</p>
+        <h1 class="hero-title">
+          Vexyron
+          <span class="sub">Best Script Hub.</span>
+        </h1>
+        <p class="hero-desc">Clean. Fast. Undetected.</p>
         <div class="hero-btns">
-          <button class="btn btn-glass" onclick="switchTab('features')">Explore</button>
-          <button class="btn btn-glass" onclick="switchTab('socials')">Discord</button>
+          <button class="btn btn-primary" onclick="switchTab('sounds')">Get Scripts</button>
+          <button class="btn btn-ghost" onclick="switchTab('features')">Explore</button>
+          <button class="btn btn-ghost" onclick="switchTab('socials')">Discord</button>
         </div>
       </div>
-      <div class="loader-section">
-        <div class="loader-label">Vexyron Hub — Universal Loader</div>
+      <div class="loader-wrap">
+        <div class="loader-label">Universal Loader</div>
         <div class="loader-box">
           <div class="loader-code" id="loader-text">loadstring(game:HttpGet("https://pastebin.com/raw/DM9ij8eD"))()</div>
           <button class="loader-copy" onclick="copyLoader()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             Copy
           </button>
         </div>
@@ -447,37 +576,37 @@
     <!-- FEATURES -->
     <div class="panel" id="panel-features">
       <div class="section">
-        <div class="section-label">Features</div>
-        <h2 class="section-title">Everything you<br/><span class="dim">need to dominate.</span></h2>
+        <div class="section-eyebrow">Features</div>
+        <h2 class="section-title">Everything you<br/><span>need to dominate.</span></h2>
         <p class="section-desc">Every script is hand-crafted, stress-tested, and pushed live within hours of every Roblox patch.</p>
         <div class="feature-grid">
-          <div class="feature-card">
-            <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <div class="g-card feature-card">
+            <div class="feature-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
             <div class="feature-name">Lightning Fast</div>
             <p class="feature-desc">Optimized Lua execution with zero lag. Loads in milliseconds on any device.</p>
           </div>
-          <div class="feature-card">
-            <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="g-card feature-card">
+            <div class="feature-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
             <div class="feature-name">Undetected</div>
             <p class="feature-desc">Advanced obfuscation and signature rotation. Updated within hours of every patch.</p>
           </div>
-          <div class="feature-card">
-            <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
+          <div class="g-card feature-card">
+            <div class="feature-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
             <div class="feature-name">Auto Update</div>
             <p class="feature-desc">Scripts silently update in the background. Always on the latest version.</p>
           </div>
-          <div class="feature-card">
-            <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+          <div class="g-card feature-card">
+            <div class="feature-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
             <div class="feature-name">Clean Code</div>
             <p class="feature-desc">Structured, commented Lua. No bloat, no junk — pure professional scripting.</p>
           </div>
-          <div class="feature-card">
-            <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="g-card feature-card">
+            <div class="feature-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
             <div class="feature-name">Live Support</div>
             <p class="feature-desc">Real developers in Discord, ready to help 24/7. No bots, no long queues.</p>
           </div>
-          <div class="feature-card">
-            <div class="feature-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg></div>
+          <div class="g-card feature-card">
+            <div class="feature-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg></div>
             <div class="feature-name">Multi-Game</div>
             <p class="feature-desc">50+ games covered and growing. New scripts drop weekly based on community votes.</p>
           </div>
@@ -488,44 +617,25 @@
     <!-- UPDATES -->
     <div class="panel" id="panel-updates">
       <div class="section">
-        <div class="section-label">Changelog</div>
-        <h2 class="section-title">Latest <span class="dim">Updates.</span></h2>
+        <div class="section-eyebrow">Changelog</div>
+        <h2 class="section-title">Latest <span>Updates.</span></h2>
         <p class="section-desc">We push fixes and features regularly. Here's what's new.</p>
         <div class="updates-grid">
-          <div class="update-card" style="border-color:rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-              <div class="update-version" style="margin-bottom:0;">v2.0</div>
-              <span style="font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:2px;text-transform:uppercase;background:var(--white);color:#000;padding:3px 10px;border-radius:100px;font-weight:700;">NEW</span>
-            </div>
-            <ul class="update-list">
-              <li>Fling</li>
-              <li>Spam</li>
-            </ul>
+          <div class="g-card update-card">
+            <div class="update-version">v2.0 <span class="new-badge">New</span></div>
+            <ul class="update-list"><li>Fling</li><li>Spam</li></ul>
           </div>
-          <div class="update-card">
+          <div class="g-card update-card">
             <div class="update-version">v1.6</div>
-            <ul class="update-list">
-              <li>Fly Animation</li>
-              <li>Smooth fly transitions</li>
-              <li>Fly speed control</li>
-            </ul>
+            <ul class="update-list"><li>Fly Animation</li><li>Smooth fly transitions</li><li>Fly speed control</li></ul>
           </div>
-          <div class="update-card">
+          <div class="g-card update-card">
             <div class="update-version">v1.5</div>
-            <ul class="update-list">
-              <li>Save settings automatically</li>
-              <li>AntiFling</li>
-            </ul>
+            <ul class="update-list"><li>Save settings automatically</li><li>AntiFling</li></ul>
           </div>
-          <div class="update-card">
+          <div class="g-card update-card">
             <div class="update-version">v1.4</div>
-            <ul class="update-list">
-              <li>Fixed Fly</li>
-              <li>Themes</li>
-              <li>Transparency</li>
-              <li>Friends ESP</li>
-              <li>Keybinds</li>
-            </ul>
+            <ul class="update-list"><li>Fixed Fly</li><li>Themes</li><li>Transparency</li><li>Friends ESP</li><li>Keybinds</li></ul>
           </div>
         </div>
       </div>
@@ -534,32 +644,20 @@
     <!-- TEAM -->
     <div class="panel" id="panel-team">
       <div class="section">
-        <div class="section-label">Credits</div>
-        <h2 class="section-title">The <span class="dim">Team.</span></h2>
+        <div class="section-eyebrow">Credits</div>
+        <h2 class="section-title">The <span>Team.</span></h2>
         <div class="credits-grid">
-          <div class="credit-card">
+          <div class="g-card credit-card">
             <div class="credit-avatar">B</div>
-            <div>
-              <div class="credit-name">Boby</div>
-              <div class="credit-role">Owner of Vexyron Hub</div>
-              <div class="credit-tags"><span class="credit-tag">Coding</span><span class="credit-tag">Design</span></div>
-            </div>
+            <div><div class="credit-name">Boby</div><div class="credit-role">Owner of Vexyron Hub</div><div class="credit-tags"><span class="credit-tag">Coding</span><span class="credit-tag">Design</span></div></div>
           </div>
-          <div class="credit-card">
+          <div class="g-card credit-card">
             <div class="credit-avatar">S</div>
-            <div>
-              <div class="credit-name">Sun</div>
-              <div class="credit-role">Dev Coder</div>
-              <div class="credit-tags"><span class="credit-tag">Coding</span></div>
-            </div>
+            <div><div class="credit-name">Sun</div><div class="credit-role">Dev Coder</div><div class="credit-tags"><span class="credit-tag">Coding</span></div></div>
           </div>
-          <div class="credit-card">
+          <div class="g-card credit-card">
             <div class="credit-avatar">T</div>
-            <div>
-              <div class="credit-name">Thor</div>
-              <div class="credit-role">Content & Dev Coder</div>
-              <div class="credit-tags"><span class="credit-tag">Content</span><span class="credit-tag">Coding</span></div>
-            </div>
+            <div><div class="credit-name">Thor</div><div class="credit-role">Content & Dev Coder</div><div class="credit-tags"><span class="credit-tag">Content</span><span class="credit-tag">Coding</span></div></div>
           </div>
         </div>
       </div>
@@ -568,38 +666,26 @@
     <!-- SOCIALS -->
     <div class="panel" id="panel-socials">
       <div class="section">
-        <div class="section-label">Community</div>
-        <h2 class="section-title">Find us <span class="dim">everywhere.</span></h2>
+        <div class="section-eyebrow">Community</div>
+        <h2 class="section-title">Find us <span>everywhere.</span></h2>
         <div class="credits-grid">
-          <a href="https://discord.gg/nE96Kv4CSB" target="_blank" class="credit-card">
-            <div class="credit-avatar" style="background:rgba(88,101,242,0.15);border-color:rgba(88,101,242,0.3);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="#5865f2"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+          <a href="https://discord.gg/nE96Kv4CSB" target="_blank" class="g-card credit-card">
+            <div class="credit-avatar" style="background:rgba(88,101,242,0.25);border-color:rgba(88,101,242,0.4);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#7289da"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
             </div>
-            <div>
-              <div class="credit-name">Discord</div>
-              <div class="credit-role">Join the community</div>
-              <div class="credit-tags"><span class="credit-tag">discord.gg/vexyron</span></div>
-            </div>
+            <div><div class="credit-name">Discord</div><div class="credit-role">Join the community</div><div class="credit-tags"><span class="credit-tag">discord.gg/vexyron</span></div></div>
           </a>
-          <a href="https://youtube.com/@void.scripts.roblox?si=MbOWwljvuWdb5cU8" target="_blank" class="credit-card">
-            <div class="credit-avatar" style="background:rgba(255,0,0,0.1);border-color:rgba(255,0,0,0.25);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          <a href="https://youtube.com/@void.scripts.roblox" target="_blank" class="g-card credit-card">
+            <div class="credit-avatar" style="background:rgba(255,0,0,0.15);border-color:rgba(255,0,0,0.3);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#ff4444"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
             </div>
-            <div>
-              <div class="credit-name">YouTube</div>
-              <div class="credit-role">Scripts & tutorials</div>
-              <div class="credit-tags"><span class="credit-tag">@vexyron.scripts</span></div>
-            </div>
+            <div><div class="credit-name">YouTube</div><div class="credit-role">Scripts & tutorials</div><div class="credit-tags"><span class="credit-tag">@vexyron.scripts</span></div></div>
           </a>
-          <a href="https://www.tiktok.com/@void.scripts.robl" target="_blank" class="credit-card">
-            <div class="credit-avatar" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/></svg>
+          <a href="https://www.tiktok.com/@void.scripts.robl" target="_blank" class="g-card credit-card">
+            <div class="credit-avatar" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.25);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/></svg>
             </div>
-            <div>
-              <div class="credit-name">TikTok</div>
-              <div class="credit-role">Clips & updates</div>
-              <div class="credit-tags"><span class="credit-tag">@vexyron.scripts</span></div>
-            </div>
+            <div><div class="credit-name">TikTok</div><div class="credit-role">Clips & updates</div><div class="credit-tags"><span class="credit-tag">@vexyron.scripts</span></div></div>
           </a>
         </div>
       </div>
@@ -608,32 +694,27 @@
     <!-- SCRIPTS -->
     <div class="panel" id="panel-sounds">
       <div class="section">
-        <div class="section-label">Scripts</div>
-        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
-          <h2 class="section-title" style="margin-bottom:0;">Scripts <span class="dim">Dashboard.</span></h2>
-          <button id="owner-add-btn-inline" onclick="openUploadModal()"
-            style="display:none;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--white);border:none;color:#000;font-size:1.3rem;font-weight:300;line-height:1;box-shadow:0 4px 16px rgba(255,255,255,.12);transition:transform .2s,box-shadow .2s;"
-            onmouseenter="this.style.transform='scale(1.12) rotate(90deg)'"
-            onmouseleave="this.style.transform='scale(1) rotate(0deg)'"
-            title="Add Script">+</button>
-          <span id="owner-login-trigger" onclick="openOwnerLogin()" style="width:20px;height:20px;display:inline-block;opacity:0;cursor:default;"></span>
-          <span id="owner-logout" onclick="ownerLogout()" style="display:none;font-size:.68rem;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer;">Logout</span>
+        <div class="section-eyebrow">Scripts</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
+          <h2 class="section-title" style="margin-bottom:0;">Scripts <span>Dashboard.</span></h2>
+          <button id="owner-add-btn-inline" onclick="openUploadModal()" title="Add Script">+</button>
+          <span id="owner-login-trigger" onclick="openOwnerLogin()"></span>
+          <span id="owner-logout" onclick="ownerLogout()">Logout</span>
         </div>
-        <p class="section-desc">Browse all Vexyron scripts and copy them with one click directly into your executor.</p>
+        <p class="section-desc">Browse all Vexyron scripts and copy them with one click.</p>
 
-        <div class="voicemod-notice">
-          <svg class="voicemod-notice-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span>Click <strong style="color:var(--muted3)">Copy Script</strong> to copy the script and paste it into your executor. Scripts are managed by the owner.</span>
+        <div class="scripts-notice">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>Click <strong>Copy Script</strong> to copy and paste into your executor.</span>
         </div>
 
-        <div class="sounds-search-wrap">
+        <div class="search-wrap">
           <input class="sounds-search" type="text" id="sounds-search" placeholder="Search scripts..." oninput="filterSounds()" />
         </div>
 
         <div class="sounds-grid" id="sounds-grid"></div>
-
         <div class="sounds-empty" id="sounds-empty" style="display:none;">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
           <div>No scripts found.</div>
         </div>
       </div>
@@ -643,7 +724,7 @@
     <div class="modal-overlay" id="modal-login">
       <div class="modal-box">
         <div class="modal-title">Owner Login</div>
-        <div class="modal-sub">Enter your password and GitHub Token to continue.</div>
+        <div class="modal-sub">Enter your password and GitHub Token.</div>
         <div class="modal-error" id="login-error">Wrong password.</div>
         <input class="modal-field" type="password" id="owner-pw" placeholder="Password..." />
         <input class="modal-field" type="password" id="owner-token" placeholder="GitHub Token (ghp_...)" onkeydown="if(event.key==='Enter')ownerLogin()" />
@@ -657,38 +738,16 @@
       <div class="upload-modal-box">
         <div class="modal-title">Add Script</div>
         <div class="modal-owner-badge">Owner Only</div>
-        <div class="modal-row">
-          <label class="modal-label">Script Name</label>
-          <input class="modal-field" type="text" id="up-title" placeholder="e.g. Blox Fruits Auto Farm" />
-        </div>
-        <div class="modal-row">
-          <label class="modal-label">Description</label>
-          <input class="modal-field" type="text" id="up-desc" placeholder="Short description..." />
-        </div>
-        <div class="modal-row">
-          <label class="modal-label">Script (Lua)</label>
-          <textarea class="modal-field" id="up-link" placeholder="loadstring(game:HttpGet(...))()" style="height:90px;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:.78rem;"></textarea>
-        </div>
-        <div class="modal-row">
-          <label class="modal-label">Thumbnail URL (optional)</label>
-          <input class="modal-field" type="url" id="up-img" placeholder="https://..." oninput="previewImg(this.value)" />
-          <div style="margin-top:8px;display:flex;align-items:center;gap:10px;">
-            <img id="up-img-preview" src="" alt="" style="width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid var(--border);display:none;" />
-            <span id="up-img-status" style="font-size:.7rem;color:var(--muted2);"></span>
-          </div>
-        </div>
-        <div class="modal-row">
-          <label class="modal-label">Kategorie</label>
-          <input class="modal-field" type="text" id="up-cat" placeholder="e.g. Blox Fruits, Da Hood, Universal" />
-        </div>
-        <div class="modal-row">
-          <label class="modal-label">Version (e.g. v2.0)</label>
-          <input class="modal-field" type="text" id="up-dur" placeholder="v1.0" />
-        </div>
+        <div class="modal-row"><label class="modal-label">Script Name</label><input class="modal-field" type="text" id="up-title" placeholder="e.g. Blox Fruits Auto Farm" /></div>
+        <div class="modal-row"><label class="modal-label">Description</label><input class="modal-field" type="text" id="up-desc" placeholder="Short description..." /></div>
+        <div class="modal-row"><label class="modal-label">Script (Lua)</label><textarea class="modal-field" id="up-link" placeholder="loadstring(game:HttpGet(...))()" style="height:80px;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:.72rem;"></textarea></div>
+        <div class="modal-row"><label class="modal-label">Thumbnail URL (optional)</label><input class="modal-field" type="url" id="up-img" placeholder="https://..." oninput="previewImg(this.value)" /><div style="margin-top:6px;display:flex;align-items:center;gap:8px;"><img id="up-img-preview" src="" alt="" style="width:40px;height:40px;border-radius:8px;object-fit:cover;border:1px solid rgba(255,255,255,0.3);display:none;" /><span id="up-img-status" style="font-size:.66rem;color:rgba(255,255,255,0.55);"></span></div></div>
+        <div class="modal-row"><label class="modal-label">Category</label><input class="modal-field" type="text" id="up-cat" placeholder="e.g. Blox Fruits, Universal" /></div>
+        <div class="modal-row"><label class="modal-label">Version</label><input class="modal-field" type="text" id="up-dur" placeholder="v1.0" /></div>
         <div class="modal-error" id="upload-error">Please fill in all required fields.</div>
         <button class="modal-btn" onclick="addSound()">Publish</button>
         <button class="modal-cancel" onclick="closeModal('modal-upload')">Cancel</button>
-        <button class="modal-cancel" style="margin-top:6px;color:#f87171;border-color:rgba(248,113,113,.2);" onclick="resetSounds()">Delete all scripts</button>
+        <button class="modal-cancel" style="margin-top:6px;color:#fca5a5;border-color:rgba(252,165,165,0.2);" onclick="resetSounds()">Delete all scripts</button>
       </div>
     </div>
 
@@ -698,31 +757,12 @@
         <div class="modal-title">Edit Script</div>
         <div class="modal-owner-badge">Owner Only</div>
         <input type="hidden" id="edit-idx" />
-        <div class="modal-row">
-          <label class="modal-label">Script Name</label>
-          <input class="modal-field" type="text" id="edit-title" placeholder="e.g. Blox Fruits Auto Farm" />
-        </div>
-        <div class="modal-row">
-          <label class="modal-label">Description</label>
-          <input class="modal-field" type="text" id="edit-desc" placeholder="Short description..." />
-        </div>
-        <div class="modal-row">
-          <label class="modal-label">Script (Lua)</label>
-          <textarea class="modal-field" id="edit-link" placeholder="loadstring(game:HttpGet(...))()" style="height:90px;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:.78rem;"></textarea>
-        </div>
-        <div class="modal-row">
-          <label class="modal-label">Thumbnail URL (optional)</label>
-          <input class="modal-field" type="url" id="edit-img" placeholder="https://..." oninput="previewEditImg(this.value)" />
-          <img id="edit-img-preview" src="" alt="" style="width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid var(--border);display:none;margin-top:8px;" />
-        </div>
-        <div class="modal-row">
-          <label class="modal-label">Kategorie</label>
-          <input class="modal-field" type="text" id="edit-cat" placeholder="e.g. Blox Fruits, Da Hood, Universal" />
-        </div>
-        <div class="modal-row">
-          <label class="modal-label">Version (e.g. v2.0)</label>
-          <input class="modal-field" type="text" id="edit-dur" placeholder="v1.0" />
-        </div>
+        <div class="modal-row"><label class="modal-label">Script Name</label><input class="modal-field" type="text" id="edit-title" /></div>
+        <div class="modal-row"><label class="modal-label">Description</label><input class="modal-field" type="text" id="edit-desc" /></div>
+        <div class="modal-row"><label class="modal-label">Script (Lua)</label><textarea class="modal-field" id="edit-link" style="height:80px;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:.72rem;"></textarea></div>
+        <div class="modal-row"><label class="modal-label">Thumbnail URL (optional)</label><input class="modal-field" type="url" id="edit-img" oninput="previewEditImg(this.value)" /><img id="edit-img-preview" src="" alt="" style="width:40px;height:40px;border-radius:8px;object-fit:cover;border:1px solid rgba(255,255,255,0.3);display:none;margin-top:6px;" /></div>
+        <div class="modal-row"><label class="modal-label">Category</label><input class="modal-field" type="text" id="edit-cat" /></div>
+        <div class="modal-row"><label class="modal-label">Version</label><input class="modal-field" type="text" id="edit-dur" /></div>
         <div class="modal-error" id="edit-error">Please fill in all required fields.</div>
         <button class="modal-btn" onclick="saveEdit()">Save</button>
         <button class="modal-cancel" onclick="closeModal('modal-edit')">Cancel</button>
@@ -731,20 +771,15 @@
   </div>
 
   <footer>
-    <div class="footer-logo">
-      <img src="Vexyron.Logo.png" alt="Vexyron" style="height:24px;width:auto;display:block;opacity:.8;" />
-    </div>
+    <img src="Vexyron.Logo.png" alt="Vexyron" style="height:20px;width:auto;filter:brightness(0) invert(1);opacity:.5;" onerror="this.style.display='none'" />
     <div class="footer-copy">© 2025 Vexyron Scripts — Not affiliated with Roblox Corporation</div>
-    <div class="footer-links">
-      <a href="#">Terms</a>
-      <a href="#">Privacy</a>
-    </div>
+    <div class="footer-links"><a href="#">Terms</a><a href="#">Privacy</a></div>
   </footer>
 
-  <div id="toast">✓ &nbsp;Copied to clipboard</div>
+  <div id="toast">✓ Copied!</div>
 
   <script>
-    const OWNER_PASSWORD = 'void2025owner';
+const OWNER_PASSWORD = 'void2025owner';
     let isOwner = false;
 
     function openOwnerLogin() {
@@ -763,7 +798,7 @@
         if (btn) btn.style.display = 'flex';
         document.getElementById('owner-logout').style.display = 'inline';
         document.getElementById('owner-login-trigger').style.display = 'none';
-        showToast('Owner mode active');
+        showToast('⬡ Owner mode active');
       } else {
         document.getElementById('login-error').textContent = pw !== OWNER_PASSWORD ? 'Wrong password.' : 'Invalid token — must start with ghp_';
         document.getElementById('login-error').style.display = 'block';
@@ -786,18 +821,17 @@
 
     const GH_USER  = 'voidscriptsdiscord';
     const GH_REPO  = 'VOIDScripts';
-    const GH_FILE  = 'Scripts.json';  // ← FIXED: was sounds.json
+    const GH_FILE  = 'Scripts.json';
     let   GH_TOKEN = '';
+    const GH_API   = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}`;
 
-    const GH_API = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}`;
-
-    let SOUNDS  = [];
-    let GH_SHA  = '';
+    let SOUNDS = [];
+    let GH_SHA = '';
 
     async function loadSoundsFromGitHub() {
       const grid  = document.getElementById('sounds-grid');
       const empty = document.getElementById('sounds-empty');
-      grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted2);font-size:.8rem;">Loading scripts...</div>';
+      grid.innerHTML = '<div style="text-align:center;padding:40px;color:#7a6a9a;font-size:.8rem;font-family:\'Space Mono\',monospace;">Loading scripts...</div>';
       try {
         const res  = await fetch(`https://raw.githubusercontent.com/${GH_USER}/${GH_REPO}/main/${GH_FILE}?t=` + Date.now());
         SOUNDS = await res.json();
@@ -815,15 +849,8 @@
       const content = btoa(unescape(encodeURIComponent(JSON.stringify(arr, null, 2))));
       const res = await fetch(GH_API, {
         method: 'PUT',
-        headers: {
-          'Authorization': `token ${GH_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: 'Update Scripts.json',
-          content,
-          sha: GH_SHA
-        })
+        headers: { 'Authorization': `token ${GH_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'Update Scripts.json', content, sha: GH_SHA })
       });
       if (!res.ok) throw new Error('GitHub save failed');
       const data = await res.json();
@@ -831,11 +858,10 @@
     }
 
     function previewImg(url) {
-      const img    = document.getElementById('up-img-preview');
+      const img = document.getElementById('up-img-preview');
       const status = document.getElementById('up-img-status');
       if (!url) { img.style.display='none'; status.textContent=''; return; }
-      img.src = url;
-      img.style.display = 'block';
+      img.src = url; img.style.display = 'block';
       img.onload  = () => { status.textContent = 'Image loaded'; status.style.color = '#4ade80'; };
       img.onerror = () => { status.textContent = 'Could not load image'; status.style.color = '#f87171'; img.style.display='none'; };
     }
@@ -858,24 +884,20 @@
       const cat      = document.getElementById('up-cat').value.trim();
       const dur      = document.getElementById('up-dur').value.trim() || 'v1.0';
       if (!title || !link || !cat) { document.getElementById('upload-error').style.display = 'block'; return; }
-
       const btn = document.querySelector('#modal-upload .modal-btn');
-      btn.textContent = 'Publishing...';
-      btn.disabled = true;
-
+      btn.textContent = 'Publishing...'; btn.disabled = true;
       try {
         SOUNDS.push({ name:title, desc:desc||'—', category:cat, imageUrl, voicemodUrl:link, duration:dur });
         await saveSoundsToGitHub(SOUNDS);
         closeModal('modal-upload');
         renderSounds(SOUNDS);
-        showToast('Script published — everyone can see it!');
+        showToast('Script published!');
       } catch(e) {
         SOUNDS.pop();
         document.getElementById('upload-error').textContent = 'Save failed. Check your token.';
         document.getElementById('upload-error').style.display = 'block';
       } finally {
-        btn.textContent = 'Publish';
-        btn.disabled = false;
+        btn.textContent = 'Publish'; btn.disabled = false;
       }
     }
 
@@ -888,9 +910,7 @@
         closeModal('modal-upload');
         renderSounds(SOUNDS);
         showToast('All scripts deleted');
-      } catch(e) {
-        showToast('Error — could not delete scripts');
-      }
+      } catch(e) { showToast('Error — could not delete'); }
     }
 
     function renderSounds(list) {
@@ -902,7 +922,7 @@
       list.forEach(sound => {
         const gi   = SOUNDS.indexOf(sound);
         const card = document.createElement('div');
-        card.className   = 'sound-card';
+        card.className = 'sound-card';
         card.style.cssText = 'display:flex;flex-direction:column;';
         card.dataset.idx = gi;
         card.innerHTML = `
@@ -910,7 +930,7 @@
             <div class="sound-thumb">
               ${sound.imageUrl
                 ? `<img src="${sound.imageUrl}" alt="${sound.name}" style="width:100%;height:100%;object-fit:cover;border-radius:11px;position:absolute;inset:0;" />`
-                : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.4"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`
+                : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.5;color:var(--muted3)"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`
               }
             </div>
             <div class="sound-info">
@@ -921,26 +941,22 @@
           </div>
           <div style="flex:1;"></div>
           <button onclick="copyScript(${gi})" id="copyscript-${gi}"
-            style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--white);font-size:.78rem;font-weight:600;font-family:'Inter',sans-serif;transition:background .2s,border-color .2s;margin-top:8px;"
-            onmouseenter="this.style.background='rgba(255,255,255,.12)';this.style.borderColor='rgba(255,255,255,.25)'"
-            onmouseleave="this.style.background='rgba(255,255,255,.06)';this.style.borderColor='var(--border)'">
+            style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;background:rgba(0,0,0,0.06);border:1px solid var(--border);border-radius:var(--r-sm);color:#1a1030;font-size:.78rem;font-weight:700;font-family:'Inter',sans-serif;transition:background .2s,border-color .2s,box-shadow .2s;margin-top:8px;letter-spacing:.5px;"
+            onmouseenter="this.style.background='rgba(0,0,0,0.10)';this.style.borderColor='var(--border-h)';this.style.boxShadow='0 0 20px rgba(255,255,255,0.06)'"
+            onmouseleave="this.style.background='rgba(0,0,0,0.06)';this.style.borderColor='var(--border)';this.style.boxShadow='none'">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             Copy Script
           </button>
           ${isOwner ? `
           <div style="display:flex;gap:8px;margin-top:8px;">
             <button onclick="openEditModal(${gi})"
-              style="flex:1;padding:9px;background:transparent;border:1px solid var(--border);border-radius:var(--r-sm);color:var(--muted3);font-size:.75rem;font-weight:600;font-family:'Inter',sans-serif;transition:border-color .2s,color .2s;"
-              onmouseenter="this.style.borderColor='rgba(255,255,255,.3)';this.style.color='#fff'"
-              onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--muted3)'">
-              Edit
-            </button>
+              style="flex:1;padding:9px;background:transparent;border:1px solid var(--border);border-radius:var(--r-sm);color:var(--muted3);font-size:.72rem;font-weight:700;font-family:'Inter',sans-serif;transition:border-color .2s,color .2s;"
+              onmouseenter="this.style.borderColor='rgba(30,20,60,0.4)';this.style.color='#1a1030'"
+              onmouseleave="this.style.borderColor='rgba(30,20,60,0.15)';this.style.color='#7a6a9a'">Edit</button>
             <button onclick="deleteSound(${gi})"
-              style="flex:1;padding:9px;background:transparent;border:1px solid rgba(248,113,113,.2);border-radius:var(--r-sm);color:#f87171;font-size:.75rem;font-weight:600;font-family:'Inter',sans-serif;transition:border-color .2s,background .2s;"
+              style="flex:1;padding:9px;background:transparent;border:1px solid rgba(248,113,113,.2);border-radius:var(--r-sm);color:#f87171;font-size:.72rem;font-weight:700;font-family:'Inter',sans-serif;transition:border-color .2s,background .2s;"
               onmouseenter="this.style.background='rgba(248,113,113,.08)';this.style.borderColor='rgba(248,113,113,.4)'"
-              onmouseleave="this.style.background='transparent';this.style.borderColor='rgba(248,113,113,.2)'">
-              Delete
-            </button>
+              onmouseleave="this.style.background='transparent';this.style.borderColor='rgba(248,113,113,.2)'">Delete</button>
           </div>` : ''}
         `;
         grid.appendChild(card);
@@ -956,10 +972,7 @@
         await saveSoundsToGitHub(SOUNDS);
         renderSounds(SOUNDS);
         showToast('Script deleted');
-      } catch(e) {
-        showToast('Error — could not delete');
-        loadSoundsFromGitHub();
-      }
+      } catch(e) { showToast('Error'); loadSoundsFromGitHub(); }
     }
 
     function openEditModal(idx) {
@@ -998,12 +1011,10 @@
         renderSounds(SOUNDS);
         showToast('Script updated');
       } catch(e) {
-        document.getElementById('edit-error').textContent = 'Save failed. Check your token.';
+        document.getElementById('edit-error').textContent = 'Save failed.';
         document.getElementById('edit-error').style.display = 'block';
         loadSoundsFromGitHub();
-      } finally {
-        btn.textContent = 'Save'; btn.disabled = false;
-      }
+      } finally { btn.textContent = 'Save'; btn.disabled = false; }
     }
 
     function previewEditImg(url) {
@@ -1021,12 +1032,14 @@
         btn.style.background = 'rgba(74,222,128,.12)';
         btn.style.borderColor = 'rgba(74,222,128,.4)';
         btn.style.color = '#4ade80';
-        showToast('✓  Script copied!');
+        btn.style.boxShadow = '0 0 20px rgba(74,222,128,.15)';
+        showToast('✓ Script copied!');
         setTimeout(() => {
           btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Script`;
-          btn.style.background = 'rgba(255,255,255,.06)';
+          btn.style.background = 'rgba(0,0,0,0.06)';
           btn.style.borderColor = 'var(--border)';
           btn.style.color = 'var(--white)';
+          btn.style.boxShadow = 'none';
         }, 2000);
       });
     }
@@ -1039,7 +1052,6 @@
     loadSoundsFromGitHub();
 
     const tabMap = ['home','features','updates','team','socials','sounds'];
-
     function switchTab(name) {
       document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -1055,7 +1067,7 @@
       navigator.clipboard.writeText(text).then(() => {
         btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
         btn.classList.add('copied');
-        showToast('✓  Copied to clipboard');
+        showToast('✓ Copied to clipboard');
         setTimeout(() => {
           btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy`;
           btn.classList.remove('copied');
@@ -1067,12 +1079,11 @@
       const toast = document.getElementById('toast');
       if (msg) toast.textContent = msg;
       toast.classList.add('show');
-      setTimeout(() => { toast.classList.remove('show'); toast.textContent = '✓  Copied to clipboard'; }, 2200);
+      setTimeout(() => { toast.classList.remove('show'); toast.textContent = '✓ Copied!'; }, 2200);
     }
 
     const cursor = document.getElementById('cursor');
     const glow   = document.getElementById('mouse-glow');
-
     if (window.matchMedia('(pointer: fine)').matches) {
       document.addEventListener('mousemove', (e) => {
         cursor.style.left = e.clientX + 'px';
@@ -1091,69 +1102,123 @@
       });
     }
     attachCursorEvents();
+
+    // renderSounds override for new design
+    function renderSounds(list) {
+      const grid  = document.getElementById('sounds-grid');
+      const empty = document.getElementById('sounds-empty');
+      grid.innerHTML = '';
+      if (!list.length) { empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      list.forEach(sound => {
+        const gi   = SOUNDS.indexOf(sound);
+        const card = document.createElement('div');
+        card.className = 'g-card sound-card';
+        card.dataset.idx = gi;
+        card.innerHTML = `
+          <div class="sound-card-top">
+            <div class="sound-thumb">
+              ${sound.imageUrl
+                ? `<img src="${sound.imageUrl}" alt="${sound.name}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;position:absolute;inset:0;" />`
+                : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`
+              }
+            </div>
+            <div class="sound-info">
+              <div class="sound-name">${sound.name}</div>
+              <div class="sound-desc">${sound.desc}</div>
+              <div class="sound-meta">${sound.category} · ${sound.duration}</div>
+            </div>
+          </div>
+          <div style="flex:1;"></div>
+          <button onclick="copyScript(${gi})" id="copyscript-${gi}"
+            style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px;background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.32);border-radius:10px;color:rgba(255,255,255,0.9);font-size:.74rem;font-weight:600;font-family:'Inter',sans-serif;transition:background .15s;margin-top:10px;"
+            onmouseenter="this.style.background='rgba(255,255,255,0.26)'"
+            onmouseleave="this.style.background='rgba(255,255,255,0.16)'">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy Script
+          </button>
+          ${isOwner ? `
+          <div style="display:flex;gap:6px;margin-top:6px;">
+            <button onclick="openEditModal(${gi})"
+              style="flex:1;padding:8px;background:transparent;border:1px solid rgba(255,255,255,0.22);border-radius:8px;color:rgba(255,255,255,0.6);font-size:.7rem;font-weight:600;font-family:'Inter',sans-serif;transition:border-color .15s,color .15s;"
+              onmouseenter="this.style.borderColor='rgba(255,255,255,0.45)';this.style.color='#fff'"
+              onmouseleave="this.style.borderColor='rgba(255,255,255,0.22)';this.style.color='rgba(255,255,255,0.6)'">Edit</button>
+            <button onclick="deleteSound(${gi})"
+              style="flex:1;padding:8px;background:transparent;border:1px solid rgba(252,165,165,0.2);border-radius:8px;color:#fca5a5;font-size:.7rem;font-weight:600;font-family:'Inter',sans-serif;transition:border-color .15s,background .15s;"
+              onmouseenter="this.style.background='rgba(252,165,165,0.08)';this.style.borderColor='rgba(252,165,165,0.4)'"
+              onmouseleave="this.style.background='transparent';this.style.borderColor='rgba(252,165,165,0.2)'">Delete</button>
+          </div>` : ''}
+        `;
+        grid.appendChild(card);
+      });
+      attachCursorEvents();
+    }
   </script>
 
   <script>
-    (function () {
+(function () {
       const canvas = document.getElementById('starfield');
       const ctx    = canvas.getContext('2d');
-
-      const STAR_COUNT      = 160;
-      const SPEED_MIN       = 0.08;
-      const SPEED_MAX       = 0.35;
-      const SIZE_MIN        = 0.4;
-      const SIZE_MAX        = 1.6;
-      const TWINKLE_SPEED   = 0.012;
-      const MOUSE_INFLUENCE = 0.04;
+      const STAR_COUNT    = 180;
+      const SPEED_MIN     = 0.06;
+      const SPEED_MAX     = 0.28;
+      const SIZE_MIN      = 0.3;
+      const SIZE_MAX      = 1.4;
+      const TWINKLE_SPEED = 0.010;
+      const MOUSE_INFLUENCE = 0.035;
 
       let W, H, stars = [];
       let mouseX = 0;
 
-      function resize() {
-        W = canvas.width  = window.innerWidth;
-        H = canvas.height = window.innerHeight;
-      }
+      // Star colors matching the logo palette
+      const STAR_COLORS = [
+        'rgba(240,234,255,',   // white-purple
+        'rgba(255,255,255,' // white
+        'rgba(232,200,122,',   // gold
+        'rgba(200,180,255,',   // lavender
+        'rgba(255,255,255,',   // white
+      ];
+
+      function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
 
       function createStar() {
         return {
-          x:          Math.random() * (W || window.innerWidth),
-          y:          Math.random() * (H || window.innerHeight),
-          size:       SIZE_MIN + Math.random() * (SIZE_MAX - SIZE_MIN),
-          speedX:     (Math.random() - 0.5) * SPEED_MAX,
-          speedY:     SPEED_MIN + Math.random() * (SPEED_MAX - SPEED_MIN),
-          twinkle:    Math.random() * Math.PI * 2,
+          x:      Math.random() * (W || window.innerWidth),
+          y:      Math.random() * (H || window.innerHeight),
+          size:   SIZE_MIN + Math.random() * (SIZE_MAX - SIZE_MIN),
+          speedX: (Math.random() - 0.5) * SPEED_MAX,
+          speedY: SPEED_MIN + Math.random() * (SPEED_MAX - SPEED_MIN),
+          twinkle: Math.random() * Math.PI * 2,
           twinkleDir: Math.random() > 0.5 ? 1 : -1,
+          color: STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)],
         };
       }
 
-      function init() {
-        resize();
-        stars = Array.from({ length: STAR_COUNT }, createStar);
-      }
+      function init() { resize(); stars = Array.from({ length: STAR_COUNT }, createStar); }
 
       function draw() {
         ctx.clearRect(0, 0, W, H);
         for (let i = 0; i < stars.length; i++) {
           const s = stars[i];
           s.twinkle += TWINKLE_SPEED * s.twinkleDir;
-          const alpha = 0.2 + 0.8 * (0.5 + 0.5 * Math.sin(s.twinkle));
+          const alpha = 0.15 + 0.85 * (0.5 + 0.5 * Math.sin(s.twinkle));
           s.x += s.speedX + (mouseX / W - 0.5) * MOUSE_INFLUENCE;
           s.y += s.speedY;
           if (s.y > H + 2) { s.y = -2; s.x = Math.random() * W; }
-          if (s.x > W + 2) { s.x = -2; }
-          if (s.x < -2)    { s.x = W + 2; }
+          if (s.x > W + 2) s.x = -2;
+          if (s.x < -2)    s.x = W + 2;
           ctx.beginPath();
           ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-          ctx.fillStyle   = `rgba(255,255,255,${alpha * 0.9})`;
-          ctx.shadowBlur  = s.size * 4;
-          ctx.shadowColor = `rgba(200,200,255,${alpha * 0.5})`;
+          ctx.fillStyle   = `${s.color}${alpha * 0.25})`;
+          ctx.shadowBlur  = s.size * 5;
+          ctx.shadowColor = `${s.color}${alpha * 0.2})`;
           ctx.fill();
           ctx.shadowBlur  = 0;
         }
         requestAnimationFrame(draw);
       }
 
-      window.addEventListener('mousemove', (e) => { mouseX = e.clientX; });
+      window.addEventListener('mousemove', e => { mouseX = e.clientX; });
       window.addEventListener('resize', () => {
         resize();
         stars.forEach(s => {
