@@ -8,10 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
 
     :root {
-      --bg:           #09090f;
+      --bg:           #0a1228;
       --surface-1:    rgba(255,255,255,0.04);
       --surface-2:    rgba(255,255,255,0.07);
       --surface-3:    rgba(255,255,255,0.10);
@@ -31,7 +31,7 @@
 
     html, body {
       min-height: 100vh;
-      background: var(--bg);
+      background: #0a1228;
       color: var(--text);
       font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-font-smoothing: antialiased;
@@ -39,35 +39,82 @@
     }
 
     /* ─── BACKGROUND ─── */
-    .bg-gradient {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background:
-        radial-gradient(ellipse 70% 55% at 15% 8%,  rgba(100,50,255,0.55) 0%, transparent 58%),
-        radial-gradient(ellipse 55% 45% at 78% 6%,  rgba(200,110,30,0.40) 0%, transparent 52%),
-        radial-gradient(ellipse 48% 65% at 5%  88%, rgba(30,20,160,0.48)  0%, transparent 58%),
-        radial-gradient(ellipse 65% 38% at 92% 92%, rgba(120,30,180,0.42) 0%, transparent 52%),
-        radial-gradient(ellipse 40% 40% at 50% 50%, rgba(60,40,140,0.20)  0%, transparent 70%);
-    }
+    .bg-gradient { display: none; }
     .blobs { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
     .blob {
       position: absolute; border-radius: 50%;
-      filter: blur(90px);
-      animation: blobDrift ease-in-out infinite;
+      filter: blur(90px); opacity: 1; will-change: transform;
     }
-    .blob-1 { width: 700px; height: 700px; top: -200px; left: -180px;
-               background: rgba(105,50,255,0.50); animation-duration: 22s; }
-    .blob-2 { width: 600px; height: 600px; top: -60px; right: -150px;
-               background: rgba(210,100,20,0.42); animation-duration: 28s; animation-delay: -6s; animation-direction: reverse; }
-    .blob-3 { width: 560px; height: 560px; bottom: -160px; left: -60px;
-               background: rgba(30,20,200,0.45); animation-duration: 20s; animation-delay: -10s; }
-    .blob-4 { width: 500px; height: 500px; bottom: -120px; right: -100px;
-               background: rgba(140,20,220,0.40); animation-duration: 26s; animation-delay: -3s; animation-direction: reverse; }
-    .blob-5 { width: 360px; height: 360px; top: 40%; left: 35%;
-               background: rgba(80,50,200,0.28); animation-duration: 18s; animation-delay: -8s; }
-    @keyframes blobDrift {
+    /* Blob 1 – bright blue top-left */
+    .blob-1 {
+      width: 80vw; height: 80vw; max-width: 750px; max-height: 750px;
+      top: -20%; left: -18%;
+      background: radial-gradient(circle, rgba(30,100,255,0.88) 0%, transparent 65%);
+      animation: blob1 18s ease-in-out infinite;
+    }
+    /* Blob 2 – violet/purple right */
+    .blob-2 {
+      width: 65vw; height: 65vw; max-width: 620px; max-height: 620px;
+      top: 10%; right: -15%;
+      background: radial-gradient(circle, rgba(100,40,240,0.80) 0%, transparent 65%);
+      animation: blob2 24s ease-in-out infinite;
+    }
+    /* Blob 3 – cobalt blue bottom-left */
+    .blob-3 {
+      width: 65vw; height: 65vw; max-width: 600px; max-height: 600px;
+      bottom: -15%; left: -8%;
+      background: radial-gradient(circle, rgba(10,50,200,0.82) 0%, transparent 65%);
+      animation: blob3 20s ease-in-out infinite;
+    }
+    /* Blob 4 – indigo bottom-right */
+    .blob-4 {
+      width: 55vw; height: 55vw; max-width: 520px; max-height: 520px;
+      bottom: -10%; right: -10%;
+      background: radial-gradient(circle, rgba(60,20,180,0.72) 0%, transparent 65%);
+      animation: blob4 26s ease-in-out infinite;
+    }
+    /* Blob 5 – blue center */
+    .blob-5 {
+      width: 70vw; height: 70vw; max-width: 650px; max-height: 650px;
+      top: 20%; left: 15%;
+      background: radial-gradient(circle, rgba(20,80,220,0.78) 0%, transparent 65%);
+      animation: blob5 16s ease-in-out infinite;
+    }
+    /* Blob 6 – purple center-right */
+    .blob-6 {
+      width: 55vw; height: 55vw; max-width: 500px; max-height: 500px;
+      top: 30%; right: 10%;
+      background: radial-gradient(circle, rgba(80,30,200,0.68) 0%, transparent 60%);
+      animation: blob1 22s ease-in-out infinite reverse;
+    }
+    @keyframes blob1 {
       0%,100% { transform: translate(0,0) scale(1); }
-      33%      { transform: translate(40px,-30px) scale(1.04); }
-      66%      { transform: translate(-25px,35px) scale(.97); }
+      25%      { transform: translate(60px, 40px) scale(1.05); }
+      50%      { transform: translate(30px,-50px) scale(0.96); }
+      75%      { transform: translate(-40px, 20px) scale(1.03); }
+    }
+    @keyframes blob2 {
+      0%,100% { transform: translate(0,0) scale(1); }
+      30%      { transform: translate(-70px, 50px) scale(1.06); }
+      60%      { transform: translate(-30px,-40px) scale(0.95); }
+      80%      { transform: translate(50px, 30px) scale(1.02); }
+    }
+    @keyframes blob3 {
+      0%,100% { transform: translate(0,0) scale(1); }
+      20%      { transform: translate(50px,-35px) scale(1.04); }
+      55%      { transform: translate(80px, 50px) scale(0.97); }
+      80%      { transform: translate(-30px, 20px) scale(1.02); }
+    }
+    @keyframes blob4 {
+      0%,100% { transform: translate(0,0) scale(1); }
+      35%      { transform: translate(-55px,-40px) scale(1.05); }
+      65%      { transform: translate(40px,-60px) scale(0.96); }
+      85%      { transform: translate(-20px, 40px) scale(1.03); }
+    }
+    @keyframes blob5 {
+      0%,100% { transform: translate(0,0) scale(1); }
+      40%      { transform: translate(-60px,-30px) scale(1.08); }
+      70%      { transform: translate(50px, 40px) scale(0.93); }
     }
 
     /* ─── NAV ─── */
@@ -200,26 +247,30 @@
     .loader-label { font-family: 'Geist Mono', monospace; font-size: .58rem; letter-spacing: 3px; text-transform: uppercase; color: var(--text-3); }
     .loader-box {
       display: flex; align-items: center; max-width: 560px; width: 100%;
-      background: rgba(20,20,35,0.7);
-      backdrop-filter: blur(40px);
-      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(60px) saturate(180%);
+      -webkit-backdrop-filter: blur(60px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.12);
       border-radius: var(--r);
-      box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 4px 20px rgba(0,0,0,.3);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 8px 32px rgba(0,0,0,.25);
     }
     .loader-code {
       font-family: 'Geist Mono', monospace; font-size: .72rem;
-      color: rgba(245,245,247,.6); padding: 14px 18px; flex: 1;
+      color: rgba(245,245,247,.75); padding: 14px 18px; flex: 1;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .loader-copy {
       display: flex; align-items: center; gap: 6px;
       font-family: 'Geist', sans-serif; font-size: .72rem; font-weight: 600;
-      color: var(--text); background: var(--surface-3);
-      border: none; border-left: 1px solid var(--border); padding: 14px 18px;
+      color: var(--text);
+      background: rgba(255,255,255,0.10);
+      backdrop-filter: blur(60px);
+      -webkit-backdrop-filter: blur(60px);
+      border: none; border-left: 1px solid rgba(255,255,255,0.12); padding: 14px 18px;
       border-radius: 0 var(--r) var(--r) 0;
       transition: background .15s; white-space: nowrap; cursor: pointer;
     }
-    .loader-copy:hover { background: rgba(255,255,255,0.14); }
+    .loader-copy:hover { background: rgba(255,255,255,0.18); }
     .loader-copy.copied { color: var(--green); }
 
     /* marquee */
@@ -448,7 +499,7 @@
 <body>
 
 <div class="bg-gradient"></div>
-<div class="blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div><div class="blob blob-4"></div><div class="blob blob-5"></div></div>
+<div class="blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div><div class="blob blob-4"></div><div class="blob blob-5"></div><div class="blob blob-6"></div></div>
 <canvas id="stars" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></canvas>
 
 <nav>
@@ -928,37 +979,65 @@ function renderScripts(list) {
 
 loadFromGH();
 
-/* ── STARFIELD ── */
+/* ── PARTICLES ── */
 (function() {
   const c = document.getElementById('stars');
-  const x = c.getContext('2d');
-  let W, H, stars = [];
-  const N = 160;
-  const COLS = ['rgba(200,190,255,','rgba(255,255,255,','rgba(200,160,100,','rgba(180,170,240,'];
+  const ctx = c.getContext('2d');
+  let W, H, pts = [];
+  const N = 55;
 
-  function resize() { W = c.width = innerWidth; H = c.height = innerHeight; }
-  function mk() {
-    return { x:Math.random()*W, y:Math.random()*H, r:.2+Math.random()*1.1,
-      sx:(Math.random()-.5)*.18, sy:.04+Math.random()*.2,
-      t:Math.random()*Math.PI*2, td:Math.random()>.5?1:-1,
-      col:COLS[Math.floor(Math.random()*COLS.length)] };
+  function resize() {
+    W = c.width  = innerWidth;
+    H = c.height = innerHeight;
   }
-  function frame() {
-    x.clearRect(0,0,W,H);
-    for (let s of stars) {
-      s.t += .008 * s.td;
-      const a = (.12 + .88*(.5+.5*Math.sin(s.t))) * .22;
-      s.x += s.sx; s.y += s.sy;
-      if (s.y > H+1) { s.y=-1; s.x=Math.random()*W; }
-      if (s.x > W+1) s.x=-1;
-      if (s.x < -1)  s.x=W+1;
-      x.beginPath(); x.arc(s.x,s.y,s.r,0,Math.PI*2);
-      x.fillStyle = s.col+a+')'; x.fill();
+
+  function make() {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 0.08 + Math.random() * 0.18;
+    return {
+      x:  Math.random() * W,
+      y:  Math.random() * H,
+      r:  0.4 + Math.random() * 1.2,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      // slow twinkle
+      phase: Math.random() * Math.PI * 2,
+      freq:  0.003 + Math.random() * 0.006,
+      // colour: white-ish or soft lavender
+      hue: Math.random() > 0.6 ? 260 : 0,
+      sat: Math.random() > 0.6 ? 60  : 0,
+    };
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    for (const p of pts) {
+      p.phase += p.freq;
+      const alpha = (0.08 + 0.18 * (0.5 + 0.5 * Math.sin(p.phase)));
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < -2) p.x = W + 2;
+      if (p.x > W + 2) p.x = -2;
+      if (p.y < -2) p.y = H + 2;
+      if (p.y > H + 2) p.y = -2;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.hue},${p.sat}%,95%,${alpha})`;
+      ctx.fill();
     }
-    requestAnimationFrame(frame);
+    requestAnimationFrame(draw);
   }
-  resize(); stars = Array.from({length:N},mk); frame();
-  addEventListener('resize',() => { resize(); stars.forEach(s => { if(s.x>W)s.x=Math.random()*W; if(s.y>H)s.y=Math.random()*H; }); });
+
+  resize();
+  pts = Array.from({ length: N }, make);
+  draw();
+  addEventListener('resize', () => {
+    resize();
+    pts.forEach(p => {
+      if (p.x > W) p.x = Math.random() * W;
+      if (p.y > H) p.y = Math.random() * H;
+    });
+  });
 })();
 </script>
 </body>
